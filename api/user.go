@@ -1,0 +1,123 @@
+package api
+
+import (
+	"douban/model"
+	"douban/service"
+	"douban/tool"
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
+)
+
+func login(ctx *gin.Context) {
+	username := ctx.PostForm("username")
+	password := ctx.PostForm("password")
+	flag, err := service.IsPasswordCorrect(username, password)
+	if err != nil {
+		fmt.Println("judge password correct err :", err)
+		tool.RespInternalError(ctx)
+		return
+	}
+	if !flag {
+		tool.RespErrorWithDate(ctx, "密码错误")
+		return
+	}
+	token, err1 := CreateToken(username)
+	if err1 != nil {
+		tool.RespInternalError(ctx)
+		return
+	}
+	tool.RespSuccessfulWithDate(ctx, gin.H{"msg": token})
+	tool.RespSuccessful(ctx)
+	return
+}
+func register(ctx *gin.Context) {
+	username, password := verify(ctx)
+	user := model.User{
+		Username: username,
+		Password: password,
+	}
+	flag, err := service.IsRepeatUsername(username)
+	if err != nil {
+		fmt.Println("judge repeat username err:", err)
+		tool.RespInternalError(ctx)
+		return
+	}
+	if flag {
+		tool.RespErrorWithDate(ctx, "用户名已经存在")
+		return
+	}
+
+	err = service.Register(user)
+	if err != nil {
+		fmt.Println("register err: ", err)
+		tool.RespInternalError(ctx)
+		return
+	}
+
+	tool.RespSuccessful(ctx)
+}
+func changePassword(ctx *gin.Context) {
+	oldPassword := ctx.PostForm("old_password")
+	newPassword := ctx.PostForm("new_password")
+	iUsername, _ := ctx.Get("username")
+	username := iUsername.(string) //接口断言
+
+	//检验旧密码是否正确
+	flag, err := service.IsPasswordCorrect(username, oldPassword)
+	if err != nil {
+		fmt.Println("judge password correct err: ", err)
+		tool.RespInternalError(ctx)
+		return
+	}
+
+	if !flag {
+		tool.RespErrorWithDate(ctx, "旧密码错误")
+		return
+	}
+
+	//修改新密码
+	err = service.ChangePassword(username, newPassword)
+	if err != nil {
+		fmt.Println("change password err: ", err)
+		tool.RespInternalError(ctx)
+		return
+	}
+
+	tool.RespSuccessful(ctx)
+}
+func verify(ctx *gin.Context) (string, string) { //验证非法输入
+	validate := validator.New() //创建验证器
+	username := ctx.PostForm("username")
+	password := ctx.PostForm("password")
+	u := model.User{Id: 0, Username: username, Password: password}
+
+	err := validate.Struct(u)
+	fmt.Println(err)
+	if err != nil {
+		return "存在非法输入", ""
+	}
+	return username, password
+
+}
+
+func introduction(ctx *gin.Context) {
+	iUsername, _ := ctx.Get("username")
+	username := iUsername.(string)
+	user, err := service.CheckIntroduction(username)
+	if err != nil {
+		tool.RespInternalError(ctx)
+	}
+	tool.RespSuccessfulWithDate(ctx, user.Introduction)
+}
+
+func changeIntroduction(ctx *gin.Context) {
+	iUsername, _ := ctx.Get("username")
+	username := iUsername.(string)
+	introduction := ctx.PostForm("introduction")
+	err := service.ChangeIntroduction(username, introduction)
+	if err != nil {
+		tool.RespInternalError(ctx)
+	}
+	tool.RespSuccessful(ctx)
+}
