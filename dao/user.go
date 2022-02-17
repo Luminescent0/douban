@@ -7,11 +7,7 @@ import (
 func SelectUserByUsername(username string) (model.User, error) {
 	user := model.User{}
 
-	row := dB.QueryRow("select id, password from user where username = ?", username)
-	if row.Err() != nil {
-		return user, row.Err()
-	}
-	err := row.Scan(&user.Id, &user.Password)
+	err := dB.QueryRow("select id, password from user where username = ?", username).Scan(&user.Id, &user.Password)
 	if err != nil {
 		return user, err
 	}
@@ -30,11 +26,7 @@ func UpdatePassword(username, newPassword string) error {
 
 func CheckIntroduction(username string) (model.User, error) {
 	var user = model.User{}
-	content := dB.QueryRow("select * from user where username = ?", username)
-	if content.Err() != nil {
-		return user, content.Err()
-	}
-	err := content.Scan(&user.Id, &user.Password, &user.Introduction)
+	err := dB.QueryRow("select * from user where username = ?", username).Scan(&user.Id, &user.Password, &user.Introduction)
 	if err != nil {
 		return user, err
 	}
