@@ -37,7 +37,7 @@ func PostDiscussion(promulgator, title, content, movieName string) error {
 }
 
 func DeleteDiscussion(promulgator, title, movieName string) error {
-	return DeleteDiscussion(promulgator, title, movieName)
+	return dao.DeleteDiscussion(promulgator, title, movieName)
 }
 
 func GetMovieByName(movieName string) (model.Movie, error) {
