@@ -127,25 +127,7 @@ func DeleteDiscussion(promulgator, title, movieName string) error {
 
 func GetMovie(movieName string) (model.Movie, error) {
 	var movie = model.Movie{}
-	id := dB.QueryRow("select * from movies where name = ?", movieName)
-	if id.Err() != nil {
-		return movie, id.Err()
-	}
-	err := id.Scan(&movie.Id, &movie.Score, &movie.Rank, &movie.Genre, &movie.Introduction,
-		&movie.ReleaseArea, &movie.ReleaseDate, &movie.EvaOfNum, &movie.DirectorAndLeadActor)
-	if err != nil {
-		return movie, err
-	}
-	return movie, nil
-}
-
-func GetMovieById(movieId int) (model.Movie, error) {
-	var movie = model.Movie{}
-	id := dB.QueryRow("select * from movies where id = ?", movieId)
-	if id.Err() != nil {
-		return movie, id.Err()
-	}
-	err := id.Scan(&movie.Id, &movie.Score, &movie.Rank, &movie.Genre, &movie.Introduction,
+	err := dB.QueryRow("select * from movies where name = ?", movieName).Scan(&movie.Id, &movie.Score, &movie.Rank, &movie.Genre, &movie.Introduction,
 		&movie.ReleaseArea, &movie.ReleaseDate, &movie.EvaOfNum, &movie.DirectorAndLeadActor)
 	if err != nil {
 		return movie, err
