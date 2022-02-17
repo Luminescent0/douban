@@ -8,7 +8,13 @@ import (
 
 func CheckUserWant(username string) ([]model.UserWant, error) {
 	var wants []model.UserWant
-	rows, err := dB.Query("select label,comment,movie_id,movie_name from wantsee where username=?", username)
+	sqlStr := "select label,comment,movie_id,movie_name from wantsee where username=?"
+	stmt, err := dB.Prepare(sqlStr)
+	if err != nil {
+		fmt.Println("prepare failed,err", err)
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query(username)
 	if err != nil {
 		return nil, err
 	}
@@ -16,7 +22,7 @@ func CheckUserWant(username string) ([]model.UserWant, error) {
 	for rows.Next() {
 		var want model.UserWant
 		err = rows.Scan(&want.Label, &want.Comment, &want.MovieId, &want.MovieName)
-		want.Url = "http://127.0.0.1:8080/movieGet/" + strconv.Itoa(want.MovieId)
+		want.Url = "http://121.4.229.95:8080/movieGet/" + strconv.Itoa(want.MovieId)
 		if err != nil {
 			return nil, err
 
@@ -27,21 +33,30 @@ func CheckUserWant(username string) ([]model.UserWant, error) {
 }
 
 func AddWantSee(username, movieName, comment, label string, movieId int) error {
-	ret, err := dB.Exec("insert into wantsee(movie_name,username, label, comment,movie_id) value (?,?,?,?,?)",
-		movieName, username, label, comment, movieId)
+	sqlStr := "insert into wantsee(movie_name,username, label, comment,movie_id) value (?,?,?,?,?)"
+	stmt, err := dB.Prepare(sqlStr)
+	if err != nil {
+		fmt.Println("prepare failed,err:", err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(movieName, username, label, comment, movieId)
 	if err != nil {
 		fmt.Println("insert failed err", err)
 		return err
 	}
-	_, err = ret.LastInsertId()
-	if err != nil {
-		fmt.Println("get lastinsert ID failed,err", err)
-		return err
-	}
+
 	return nil
 }
 func DeleteWantSee(username, movieName string) error {
-	_, err := dB.Exec("delete from wantsee where username=? and movie_name=?", username, movieName)
+	sqlStr := "delete from wantsee where username=? and movie_name=?"
+	stmt, err := dB.Prepare(sqlStr)
+	if err != nil {
+		fmt.Println("prepare failed,err:", err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(username, movieName)
 	if err != nil {
 		fmt.Println("delete  wantSee failed,err", err)
 		return err
@@ -51,7 +66,14 @@ func DeleteWantSee(username, movieName string) error {
 
 func Seen(username string) ([]model.UserWant, error) {
 	var seens []model.UserWant
-	rows, err := dB.Query("select  label,comment,movie_name,movie_id from wantsee where username=?", username)
+	sqlStr := "select  label,comment,movie_name,movie_id from wantsee where username=?"
+	stmt, err := dB.Prepare(sqlStr)
+	if err != nil {
+		fmt.Println("prepare failed,err:", err)
+		return seens, err
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query(username)
 	if err != nil {
 		return nil, err
 	}
@@ -62,28 +84,37 @@ func Seen(username string) ([]model.UserWant, error) {
 		if err != nil {
 			return nil, err
 		}
-		seen.Url = "http://127.0.0.1/movieGet/" + strconv.Itoa(seen.MovieId)
+		seen.Url = "http://121.4.229.95/movieGet/" + strconv.Itoa(seen.MovieId)
 		seens = append(seens, seen)
 	}
 	return seens, nil
 }
 
 func AddSeen(username, movieName, comment, label string, movieId int) error {
-	_, err := dB.Exec("insert into seen(movie_name,username, label, comment,movie_id) value (?,?,?,?,?)", movieName, username, label, comment, movieId)
+	sqlStr := "insert into seen(movie_name,username, label, comment,movie_id) value (?,?,?,?,?)"
+	stmt, err := dB.Prepare(sqlStr)
+	if err != nil {
+		fmt.Println("prepare failed,err:", err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(movieName, username, label, comment, movieId)
 	if err != nil {
 		fmt.Println("insert failed err", err)
 		return err
 	}
-	//_,err = ret.LastInsertId()
-	//if err != nil {
-	//	fmt.Println("get lastinsert ID failed,err",err)
-	//	return err
-	//}
 	return nil
 }
 
 func DeleteSeen(username, movieName string) error {
-	_, err := dB.Exec("delete from seen where username=? and movie_name=?", username, movieName)
+	sqlStr := "delete from seen where username=? and movie_name=?"
+	stmt, err := dB.Prepare(sqlStr)
+	if err != nil {
+		fmt.Println("prepare failed,err:", err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(username, movieName)
 	if err != nil {
 		fmt.Println("delete seen failed,err", err)
 		return err
@@ -112,12 +143,30 @@ func SelectMovies(keyword string) ([]model.Movie, error) {
 }
 
 func PostDiscussion(promulgator, title, content, movieName string) error {
-	_, err := dB.Exec("insert into discussion(promulgator, title, content, movie_name)value(?,?,?,?)", promulgator, title, content, movieName)
-	return err
+	sqlStr := "insert into discussion(promulgator, title, content, movie_name)value(?,?,?,?)"
+	stmt, err := dB.Prepare(sqlStr)
+	if err != nil {
+		fmt.Println("prepare failed,err:", err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(promulgator, title, content, movieName)
+	if err != nil {
+		fmt.Println("post discussion failed,err", err)
+		return err
+	}
+	return nil
 }
 
 func DeleteDiscussion(promulgator, title, movieName string) error {
-	_, err := dB.Exec("delete from discussion where promulgator=? and movie_name=? and title=?", promulgator, movieName, title)
+	sqlStr := "delete from discussion where promulgator=? and movie_name=? and title=?"
+	stmt, err := dB.Prepare(sqlStr)
+	if err != nil {
+		fmt.Println("prepare failed,err:", err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(promulgator, movieName, title)
 	if err != nil {
 		fmt.Println("delete discussion failed,err", err)
 		return err

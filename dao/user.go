@@ -2,12 +2,16 @@ package dao
 
 import (
 	"douban/model"
+	"fmt"
 )
 
 func SelectUserByUsername(username string) (model.User, error) {
 	user := model.User{}
-
-	err := dB.QueryRow("select id, password from user where username = ?", username).Scan(&user.Id, &user.Password)
+	row := dB.QueryRow("select id, password from user where username = ?", username)
+	if row.Err() != nil {
+		return user, row.Err()
+	}
+	err := row.Scan(&user.Id, &user.Password)
 	if err != nil {
 		return user, err
 	}
@@ -15,18 +19,42 @@ func SelectUserByUsername(username string) (model.User, error) {
 }
 
 func InsertUser(user model.User) error {
-	_, err := dB.Exec("INSERT INTO user(username, password) "+"values(?, ?);", user.Username, user.Password)
-	return err
+	sqlStr := "INSERT INTO user(username, password) " + "values(?, ?);"
+	stmt, err := dB.Prepare(sqlStr)
+	if err != nil {
+		fmt.Println("prepare failed,err:", err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(user.Username, user.Password)
+	if err != nil {
+		fmt.Println("insert failed,err", err)
+	}
+	return nil
 }
 
 func UpdatePassword(username, newPassword string) error {
-	_, err := dB.Exec("UPDATE user SET password = ? WHERE username = ?", newPassword, username)
-	return err
+	sqlStr := "UPDATE user SET password = ? WHERE username = ?"
+	stmt, err := dB.Prepare(sqlStr)
+	if err != nil {
+		fmt.Println("prepare failed,err", err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(newPassword, username)
+	if err != nil {
+		fmt.Println("update password failed,err", err)
+	}
+	return nil
 }
 
 func CheckIntroduction(username string) (model.User, error) {
 	var user = model.User{}
-	err := dB.QueryRow("select * from user where username = ?", username).Scan(&user.Id, &user.Password, &user.Introduction)
+	content := dB.QueryRow("select * from user where username = ?", username)
+	if content.Err() != nil {
+		return user, content.Err()
+	}
+	err := content.Scan(&user.Id, &user.Password, &user.Introduction)
 	if err != nil {
 		return user, err
 	}
@@ -35,6 +63,16 @@ func CheckIntroduction(username string) (model.User, error) {
 }
 
 func ChangeIntroduction(username, introduction string) error {
-	_, err := dB.Exec("update user set introduction = ? where username = ?", introduction, username)
-	return err
+	sqlStr := "update user set introduction = ? where username = ?"
+	stmt, err := dB.Prepare(sqlStr)
+	if err != nil {
+		fmt.Println("prepare failed,err", err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(introduction, username)
+	if err != nil {
+		fmt.Println("change introduction failed err", err)
+	}
+	return nil
 }

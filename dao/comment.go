@@ -7,7 +7,14 @@ import (
 
 func GetComment(username string) ([]model.Comment, error) {
 	var comments []model.Comment
-	rows, err := dB.Query("select movie_name,content from comment where username=?", username)
+	sqlStr := "select movie_name,content from comment where username=?"
+	stmt, err := dB.Prepare(sqlStr)
+	if err != nil {
+		fmt.Println("prepare failed,err:", err)
+		return comments, err
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query(username)
 	if err != nil {
 		return nil, err
 	}
@@ -45,13 +52,31 @@ func DeleteComment(username, movieName string) error {
 }
 
 func PostLongComment(promulgator, title, content, movieName string) error {
-	_, err := dB.Exec("insert into long_comment(promulgator, title, content, movie_name)value(?,?,?,?)", promulgator, title, content, movieName)
-	return err
+	sqlStr := "insert into long_comment(promulgator, title, content, movie_name)value(?,?,?,?)"
+	stmt, err := dB.Prepare(sqlStr)
+	if err != nil {
+		fmt.Println("prepare failed,err:", err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(promulgator, title, content, movieName)
+	if err != nil {
+		fmt.Println("post long comment failed,err:", err)
+		return err
+	}
+	return nil
 }
 
 func GetLongComment(username string) ([]model.LongComment, error) {
 	var comments []model.LongComment
-	rows, err := dB.Query("select title,movie_name,content from long_comment where promulgator=?", username)
+	sqlStr := "select title,movie_name,content from long_comment where promulgator=?"
+	stmt, err := dB.Prepare(sqlStr)
+	if err != nil {
+		fmt.Println("prepare failed,err:", err)
+		return comments, err
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query(username)
 	if err != nil {
 		return nil, err
 	}
@@ -69,17 +94,49 @@ func GetLongComment(username string) ([]model.LongComment, error) {
 }
 
 func PostComment(promulgator, content, movieName string) error {
-	_, err := dB.Exec("insert into comment(username, content, movie_name)value(?,?,?)", promulgator, content, movieName)
-	return err
+	sqlStr := "insert into comment(username, content, movie_name)value(?,?,?)"
+	stmt, err := dB.Prepare(sqlStr)
+	if err != nil {
+		fmt.Println("prepare failed,err", err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(promulgator, content, movieName)
+	if err != nil {
+		fmt.Println("post comment failed,err", err)
+		return err
+	}
+	return nil
 }
 
 func PostDisComment(promulgator, comment, movieName, title string) error {
-	_, err := dB.Exec("insert into dis_comment(promulgator,content,movie_name,title)value (?,?,?,?)", promulgator, comment, movieName, title)
-	return err
+	sqlstr := "insert into dis_comment(promulgator,content,movie_name,title)value (?,?,?,?)"
+	stmt, err := dB.Prepare(sqlstr)
+	if err != nil {
+		fmt.Println("prepare failed,err", err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(promulgator, comment, movieName, title)
+	if err != nil {
+		fmt.Println("post disComment failed,err:", err)
+	}
+	return nil
 }
 
 func DeleteDisComment(promulgator, movieName, title string) error {
-	_, err := dB.Exec("delete from dis_comment where promulgator=? and movie_name=?and title=?", promulgator, movieName, title)
-	return err
+	sqlStr := "delete from dis_comment where promulgator=? and movie_name=?and title=?"
+	stmt, err := dB.Prepare(sqlStr)
+	if err != nil {
+		fmt.Println("prepare failed,err", err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(promulgator, movieName, title)
+	if err != nil {
+		fmt.Println("delete disComment,err:", err)
+		return err
+	}
+	return nil
 
 }
