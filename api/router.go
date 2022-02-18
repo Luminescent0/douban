@@ -15,6 +15,7 @@ func InitEngine() {
 	{
 		userGroup.Use(JwtAuthMiddleware)
 		userGroup.POST("/password", changePassword) //修改密码
+		userGroup.POST("/avatar", uploadAvatar)     //上传头像
 
 		userGroup.GET("/:username/menu/introduction", introduction) //个人介绍
 		userGroup.POST("/:username/menu/introduction", changeIntroduction)
