@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	path2 "path"
 	"strconv"
 	"time"
 )
@@ -133,11 +134,18 @@ func uploadAvatar(c *gin.Context) {
 		tool.RespErrorWithDate(c, "参数解析失败")
 		return
 	}
+	if file.Size > 1024*1024*5 {
+		tool.RespErrorWithDate(c, "文件过大")
+	}
+	fileSuffix := path2.Ext(file.Filename)
+	if !(fileSuffix == ".jpg" || fileSuffix == ".png") {
+		tool.RespErrorWithDate(c, "文件格式错误")
+	}
 	//file保存到本地
 	fileName := "./uploadfile" + strconv.FormatInt(time.Now().Unix(), 10) + file.Filename
 	err = c.SaveUploadedFile(file, fileName)
 	if err != nil {
-		tool.RespSuccessfulWithDate(c, "头像更新失败")
+		tool.RespErrorWithDate(c, "保存头像失败")
 		return
 	}
 	//将保存后的文件本地路径保存到用户表中的头像字段
