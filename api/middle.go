@@ -48,29 +48,28 @@ func JwtAuthMiddleware(ctx *gin.Context) {
 		return
 	}
 	//按空格分割
-	parts := strings.SplitN(authHeader, "", 2)
+	parts := strings.SplitN(authHeader, " ", 2)
 	if !(len(parts) == 2 && parts[0] == "Bearer") {
 		tool.RespSuccessfulWithDate(ctx, gin.H{"msg": "请求头中auth格式有误"})
 		ctx.Abort()
 		return
 	}
-	//part[1]是获取到的tokenString,使用之前定义好的解析jwt函数来解析
 	token, err := jwt.ParseWithClaims(authHeader, &MyClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return MySecret, nil
 	})
 	username := token.Claims.(*MyClaims).Username
-	Time := token.Claims.(*MyClaims).ExpiresAt
-	if Time < time.Now().Unix() {
-		tool.RespSuccessfulWithDate(ctx, gin.H{"msg": "token过期"})
-		ctx.Abort()
-		return
-	}
+	//Time := token.Claims.(*MyClaims).ExpiresAt
+	//if Time < time.Now().Unix() {
+	//	tool.RespSuccessfulWithDate(ctx, gin.H{"msg": "token过期"})
+	//	ctx.Abort()
+	//	return
+	//}
 	if err != nil {
 		fmt.Println("parse token failed err", err)
 		tool.RespInternalError(ctx)
 	}
 	if token.Valid == false {
-		tool.RespSuccessfulWithDate(ctx, gin.H{"msg": "token不正确"})
+		tool.RespSuccessfulWithDate(ctx, gin.H{"msg": "token无效"})
 		ctx.Abort()
 		return
 	}
