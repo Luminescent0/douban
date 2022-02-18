@@ -80,7 +80,7 @@ func changePassword(ctx *gin.Context) {
 	err = service.ChangePassword(username, newPassword)
 	if err != nil {
 		fmt.Println("change password err: ", err)
-		tool.RespInternalError(ctx)
+		tool.RespSuccessfulWithDate(ctx, "修改失败")
 		return
 	}
 
@@ -121,3 +121,15 @@ func changeIntroduction(ctx *gin.Context) {
 	}
 	tool.RespSuccessful(ctx)
 }
+
+//func uploadAvatar(c *gin.Context)  {
+//	iUsername, _ := c.Get("username")
+//	username := iUsername.(string)
+//	//解析上传的参数,file username
+//	file,err := c.FormFile("avatar")
+//	if err != nil {
+//		tool.RespErrorWithDate(c,"参数解析失败")
+//		return
+//	}
+//
+//}
