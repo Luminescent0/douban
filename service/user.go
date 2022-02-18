@@ -52,3 +52,11 @@ func ChangeIntroduction(username, introduction string) error {
 	err := dao.ChangeIntroduction(username, introduction)
 	return err
 }
+
+func UploadAvatar(username, fileName string) (error, string) {
+	err := dao.UploadAvatar(username, fileName)
+	if err != nil {
+		return err, ""
+	}
+	return nil, fileName
+}

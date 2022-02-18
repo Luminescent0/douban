@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"strconv"
+	"time"
 )
 
 func login(ctx *gin.Context) {
@@ -122,14 +124,27 @@ func changeIntroduction(ctx *gin.Context) {
 	tool.RespSuccessful(ctx)
 }
 
-//func uploadAvatar(c *gin.Context)  {
-//	iUsername, _ := c.Get("username")
-//	username := iUsername.(string)
-//	//解析上传的参数,file username
-//	file,err := c.FormFile("avatar")
-//	if err != nil {
-//		tool.RespErrorWithDate(c,"参数解析失败")
-//		return
-//	}
-//
-//}
+func uploadAvatar(c *gin.Context) {
+	iUsername, _ := c.Get("username")
+	username := iUsername.(string)
+	//解析上传的参数,file username
+	file, err := c.FormFile("avatar")
+	if err != nil {
+		tool.RespErrorWithDate(c, "参数解析失败")
+		return
+	}
+	//file保存到本地
+	fileName := "./uploadfile" + strconv.FormatInt(time.Now().Unix(), 10) + file.Filename
+	err = c.SaveUploadedFile(file, fileName)
+	if err != nil {
+		tool.RespSuccessfulWithDate(c, "头像更新失败")
+		return
+	}
+	//将保存后的文件本地路径保存到用户表中的头像字段
+	err, path := service.UploadAvatar(username, fileName[1:])
+	if path != "" {
+		tool.RespSuccessfulWithDate(c, "http://121.4.229.95:8080"+path)
+		return
+	}
+	tool.RespSuccessfulWithDate(c, "上传失败")
+}
