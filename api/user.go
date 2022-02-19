@@ -87,7 +87,7 @@ func changePassword(ctx *gin.Context) {
 		return
 	}
 
-	tool.RespSuccessful(ctx)
+	tool.RespSuccessfulWithDate(ctx, "修改成功")
 }
 func verify(ctx *gin.Context) (string, string) { //验证非法输入
 	validate := validator.New() //创建验证器

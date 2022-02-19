@@ -48,7 +48,7 @@ func JwtAuthMiddleware(ctx *gin.Context) {
 		return
 	}
 	//按空格分割
-	parts := strings.SplitN(authHeader, " ", 2)
+	parts := strings.SplitN(authHeader, ".", 2)
 	if !(len(parts) == 2 && parts[0] == "Bearer") {
 		tool.RespSuccessfulWithDate(ctx, gin.H{"msg": "请求头中auth格式有误"})
 		ctx.Abort()
