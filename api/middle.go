@@ -16,7 +16,7 @@ type MyClaims struct {
 	jwt.StandardClaims
 }
 
-var MySecret = []byte("xian")
+var MySecret = []byte("xian1")
 
 func CreateToken(username string) (string, error) {
 	//创建自己的声明
@@ -48,7 +48,7 @@ func JwtAuthMiddleware(ctx *gin.Context) {
 		return
 	}
 	//按空格分割
-	parts := strings.SplitN(authHeader, ".", 2)
+	parts := strings.SplitN(authHeader, "", 2)
 	if !(len(parts) == 2 && parts[0] == "Bearer") {
 		tool.RespSuccessfulWithDate(ctx, gin.H{"msg": "请求头中auth格式有误"})
 		ctx.Abort()
@@ -67,6 +67,7 @@ func JwtAuthMiddleware(ctx *gin.Context) {
 	if err != nil {
 		fmt.Println("parse token failed err", err)
 		tool.RespInternalError(ctx)
+		return
 	}
 	if token.Valid == false {
 		tool.RespSuccessfulWithDate(ctx, gin.H{"msg": "token无效"})
