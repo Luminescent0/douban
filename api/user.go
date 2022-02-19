@@ -58,11 +58,11 @@ func register(ctx *gin.Context) {
 		return
 	}
 
-	tool.RespSuccessful(ctx)
+	tool.RespErrorWithDate(ctx, "注册失败")
 }
 func changePassword(ctx *gin.Context) {
-	oldPassword := ctx.PostForm("old_password")
-	newPassword := ctx.PostForm("new_password")
+	oldPassword := ctx.PostForm("oldPassword")
+	newPassword := ctx.PostForm("newPassword")
 	iUsername, _ := ctx.Get("username")
 	username := iUsername.(string) //接口断言
 

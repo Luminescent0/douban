@@ -4,8 +4,9 @@ import (
 	"database/sql"
 	"douban/dao"
 	"douban/model"
-	"errors"
+	"fmt"
 	"golang.org/x/crypto/bcrypt"
+	"time"
 )
 
 func IsPasswordCorrect(username, password string) (bool, error) {
@@ -14,12 +15,15 @@ func IsPasswordCorrect(username, password string) (bool, error) {
 		if err == sql.ErrNoRows {
 			return false, nil
 		}
+		fmt.Println(username) //验证是否ErrNoRows
 		return false, err
 	}
 
-	if user.Password != password {
+	flag := ComparePassword(user.Password, []byte(password))
+	if !flag {
 		return false, nil
 	}
+	fmt.Println("验证密码成功")
 	return true, nil
 }
 
@@ -34,10 +38,11 @@ func IsRepeatUsername(username string) (bool, error) {
 	return true, nil
 }
 func Register(user model.User) error {
-	err := Cipher(user)
+	password, err := Cipher(user)
 	if err != nil {
 		return err
 	}
+	user.Password = password
 	err = dao.InsertUser(user)
 	if err != nil {
 		return err
@@ -76,17 +81,25 @@ type Bcrypt struct {
 	cost int
 }
 
-func Cipher(user model.User) error {
-	hash := Bcrypt{
-		cost: bcrypt.DefaultCost,
-	}
-	_, err := hash.Make([]byte(user.Password))
+func Cipher(user model.User) (string, error) {
+	password := []byte(user.Password)
+	nowG := time.Now()
+	hashedPassword, err := bcrypt.GenerateFromPassword(password, bcrypt.MinCost)
 	if err != nil {
-		return errors.New("加密失败")
+		return "", err
 	}
-	return nil
+	fmt.Println("加密后", string(hashedPassword), "耗时", time.Now().Sub(nowG))
+
+	return string(hashedPassword), nil
 }
 
-func (b *Bcrypt) Make(password []byte) ([]byte, error) {
-	return bcrypt.GenerateFromPassword(password, b.cost)
+func ComparePassword(hashedPassword string, plainPassword []byte) bool {
+	byteHash := []byte(hashedPassword)
+
+	err := bcrypt.CompareHashAndPassword(byteHash, plainPassword)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+	return true
 }
