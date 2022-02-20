@@ -30,8 +30,7 @@ func login(ctx *gin.Context) {
 		tool.RespInternalError(ctx)
 		return
 	}
-	tool.RespSuccessfulWithDate(ctx, gin.H{"msg": token})
-	tool.RespSuccessful(ctx)
+	tool.RespSuccessfulWithDate(ctx, token)
 	return
 }
 func register(ctx *gin.Context) {
