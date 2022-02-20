@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	path2 "path"
+	"path"
 	"strconv"
 	"time"
 )
@@ -136,23 +136,27 @@ func uploadAvatar(c *gin.Context) {
 	}
 	if file.Size > 1024*1024*5 {
 		tool.RespErrorWithDate(c, "文件过大")
+		return
 	}
-	fileSuffix := path2.Ext(file.Filename)
+	fileSuffix := path.Ext(file.Filename)
 	if !(fileSuffix == ".jpg" || fileSuffix == ".png") {
 		tool.RespErrorWithDate(c, "文件格式错误")
+		return
 	}
 	//file保存到本地
-	fileName := "./uploadfile" + strconv.FormatInt(time.Now().Unix(), 10) + file.Filename
+	fileName := "./uploadfile" + strconv.FormatInt(time.Now().Unix(), 10) + username + fileSuffix
+	fileAddress := "/opt/gocode/src/douban" + fileName[1:]
 	err = c.SaveUploadedFile(file, fileName)
 	if err != nil {
 		tool.RespErrorWithDate(c, "保存头像失败")
 		return
 	}
 	//将保存后的文件本地路径保存到用户表中的头像字段
-	err, path := service.UploadAvatar(username, fileName[1:])
-	if path != "" {
-		tool.RespSuccessfulWithDate(c, "http://121.4.229.95:8080"+path)
+	loadString := "http:121.4.229.95:8080/picture/" + fileName[13:]
+	err = service.UploadAvatar(username, loadString, fileAddress)
+	if err != nil {
+		tool.RespErrorWithDate(c, "上传失败")
 		return
 	}
-	tool.RespSuccessfulWithDate(c, "上传失败")
+	tool.RespSuccessfulWithDate(c, "上传成功")
 }

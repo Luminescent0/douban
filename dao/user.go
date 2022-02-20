@@ -69,15 +69,15 @@ func ChangeIntroduction(username, introduction string) error {
 	return nil
 }
 
-func UploadAvatar(username, fileName string) error {
-	sqlStr := "update user set avatar = ? where username=?"
+func UploadAvatar(username, loadString, fileAddress string) error {
+	sqlStr := "update user set avatar = ?,address =? where username=?"
 	stmt, err := dB.Prepare(sqlStr)
 	if err != nil {
 		fmt.Println("prepare failed,err", err)
 		return err
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(fileName, username)
+	_, err = stmt.Exec(loadString, fileAddress, username)
 	if err != nil {
 		fmt.Println("upload avatar failed,err", err)
 		return err

@@ -68,12 +68,12 @@ func ChangeIntroduction(username, introduction string) error {
 	return err
 }
 
-func UploadAvatar(username, fileName string) (error, string) {
-	err := dao.UploadAvatar(username, fileName)
+func UploadAvatar(username, loadString, fileAddress string) error {
+	err := dao.UploadAvatar(username, loadString, fileAddress)
 	if err != nil {
-		return err, ""
+		return err
 	}
-	return nil, fileName
+	return nil
 }
 
 // Bcrypt 密码加盐
