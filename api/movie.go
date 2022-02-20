@@ -124,8 +124,14 @@ func postDiscussion(ctx *gin.Context) {
 	promulgator := iUsername.(string)
 	title := ctx.PostForm("title")
 	content := ctx.PostForm("content")
-	movieName := ctx.PostForm("movie_name")
-	err := service.PostDiscussion(promulgator, title, content, movieName)
+	movieID := ctx.Param("movieId")
+	movieId, _ := strconv.Atoi(movieID)
+	movie, err := service.GetMovieById(movieId)
+	if err != nil {
+		tool.RespErrorWithDate(ctx, "数据库中查询不到该电影")
+	}
+	movieName := movie.Name
+	err = service.PostDiscussion(promulgator, title, content, movieName)
 	if err != nil {
 		tool.RespSuccessfulWithDate(ctx, "上传失败")
 	}
@@ -136,8 +142,14 @@ func deleteDiscussion(ctx *gin.Context) {
 	iUsername, _ := ctx.Get("username")
 	promulgator := iUsername.(string)
 	title := ctx.PostForm("title")
-	movieName := ctx.PostForm("movie_name")
-	err := service.DeleteDiscussion(promulgator, title, movieName)
+	movieID := ctx.Param("movieId")
+	movieId, _ := strconv.Atoi(movieID)
+	movie, err := service.GetMovieById(movieId)
+	if err != nil {
+		tool.RespErrorWithDate(ctx, "数据库中查询不到该电影")
+	}
+	movieName := movie.Name
+	err = service.DeleteDiscussion(promulgator, title, movieName)
 	if err != nil {
 		tool.RespSuccessfulWithDate(ctx, "删除失败")
 	}

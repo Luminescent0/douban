@@ -43,7 +43,7 @@ func InitEngine() {
 		movie.POST("/longComment", postLongComment) //影评
 		movie.DELETE("/longComment", deleteLongComment)
 
-		movieDis := movie.Group("/discussion")
+		movieDis := movie.Group("/discussion/:movieId")
 		{
 			movieDis.Use(JwtAuthMiddleware)
 			movieDis.POST("/", postDiscussion) //讨论区

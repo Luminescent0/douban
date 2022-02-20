@@ -111,9 +111,15 @@ func postDisComment(ctx *gin.Context) {
 	title := ctx.PostForm("title")     //讨论的标题
 	comment := ctx.PostForm("comment") //评论内容
 	iUsername, _ := ctx.Get("username")
-	movieName := ctx.PostForm("movieName")
+	movieID := ctx.Param("movieId")
+	movieId, _ := strconv.Atoi(movieID)
+	movie, err := service.GetMovieById(movieId)
+	if err != nil {
+		tool.RespErrorWithDate(ctx, "数据库中查询不到该电影")
+	}
+	movieName := movie.Name
 	promulgator := iUsername.(string)
-	err := service.PostDisComment(promulgator, comment, movieName, title)
+	err = service.PostDisComment(promulgator, comment, movieName, title)
 	if err != nil {
 		fmt.Println(err)
 		tool.RespSuccessfulWithDate(ctx, "评论失败")
@@ -125,8 +131,14 @@ func deleteDisComment(ctx *gin.Context) {
 	iUsername, _ := ctx.Get("username")
 	promulgator := iUsername.(string)
 	title := ctx.PostForm("title")
-	movieName := ctx.PostForm("movieName")
-	err := service.DeleteDisComment(promulgator, movieName, title)
+	movieID := ctx.Param("movieId")
+	movieId, _ := strconv.Atoi(movieID)
+	movie, err := service.GetMovieById(movieId)
+	if err != nil {
+		tool.RespErrorWithDate(ctx, "数据库中查询不到该电影")
+	}
+	movieName := movie.Name
+	err = service.DeleteDisComment(promulgator, movieName, title)
 	if err != nil {
 		fmt.Println(err)
 		tool.RespSuccessfulWithDate(ctx, "删除失败")
