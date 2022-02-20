@@ -16,14 +16,16 @@ func InitEngine() {
 		userGroup.Use(JwtAuthMiddleware)
 		userGroup.POST("/password", changePassword) //修改密码
 		userGroup.POST("/avatar", uploadAvatar)     //上传头像
-
-		userGroup.GET("/:username/menu/introduction", introduction) //个人介绍
 		userGroup.POST("/:username/menu/introduction", changeIntroduction)
 
-		userGroup.GET("/:username/wantSee", wantSee)            //用户想看
-		userGroup.GET("/:username/seen", seen)                  //用户看过
-		userGroup.GET("/:username/comment", getComment)         //用户短评
-		userGroup.GET("/:username/longComment", getLongComment) //用户影评
+	}
+	userInfo := engine.Group("/user")
+	{
+		userInfo.GET("/:username/menu/introduction", introduction)
+		userInfo.GET("/:username/wantSee", wantSee)            //用户想看
+		userInfo.GET("/:username/seen", seen)                  //用户看过
+		userInfo.GET("/:username/comment", getComment)         //用户短评
+		userInfo.GET("/:username/longComment", getLongComment) //用户影评
 
 	}
 	movie := engine.Group("/movie")
