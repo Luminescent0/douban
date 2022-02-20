@@ -15,6 +15,11 @@ import (
 func login(ctx *gin.Context) {
 	username := ctx.PostForm("username")
 	password := ctx.PostForm("password")
+	err := service.UsernameIsExist(username)
+	if err != nil {
+		tool.RespErrorWithDate(ctx, "用户不存在")
+		return
+	}
 	flag, err := service.IsPasswordCorrect(username, password)
 	if err != nil {
 		fmt.Println("judge password correct err :", err)

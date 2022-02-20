@@ -103,3 +103,11 @@ func ComparePassword(hashedPassword string, plainPassword []byte) bool {
 	}
 	return true
 }
+
+func UsernameIsExist(username string) error {
+	_, err := dao.SelectUserByUsername(username)
+	if err != nil {
+		return err
+	}
+	return nil
+}
