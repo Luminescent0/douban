@@ -8,8 +8,7 @@ import (
 )
 
 func getComment(ctx *gin.Context) {
-	iUsername, _ := ctx.Get("username")
-	username := iUsername.(string)
+	username := ctx.Param("username")
 	comments, err := service.GetComment(username)
 	if err != nil {
 		tool.RespInternalError(ctx)
@@ -22,8 +21,7 @@ func getComment(ctx *gin.Context) {
 }
 
 func getLongComment(ctx *gin.Context) {
-	iUsername, _ := ctx.Get("username")
-	username := iUsername.(string)
+	username := ctx.Param("username")
 	comments, err := service.GetLongComment(username)
 	if err != nil {
 		tool.RespInternalError(ctx)

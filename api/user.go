@@ -116,8 +116,7 @@ func verify(ctx *gin.Context) (string, string) { //验证非法输入
 }
 
 func introduction(ctx *gin.Context) {
-	iUsername, _ := ctx.Get("username")
-	username := iUsername.(string)
+	username := ctx.Param("username")
 	user, err := service.CheckIntroduction(username)
 	if err != nil {
 		tool.RespInternalError(ctx)

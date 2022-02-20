@@ -9,8 +9,7 @@ import (
 )
 
 func wantSee(ctx *gin.Context) {
-	iUsername, _ := ctx.Get("username")
-	username := iUsername.(string)
+	username := ctx.Param("username")
 	wants, err := service.CheckWantSee(username)
 	if err != nil {
 		fmt.Println("get user's wantSee failed err:", err)
@@ -48,8 +47,7 @@ func deleteWantSee(ctx *gin.Context) {
 }
 
 func seen(ctx *gin.Context) {
-	iUsername, _ := ctx.Get("username")
-	username := iUsername.(string)
+	username := ctx.Param("username")
 	seen, err := service.Seen(username)
 	if err != nil {
 		fmt.Println("get user's seen failed err:", err)
