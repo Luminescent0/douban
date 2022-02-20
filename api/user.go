@@ -69,8 +69,7 @@ func register(ctx *gin.Context) {
 		tool.RespInternalError(ctx)
 		return
 	}
-
-	tool.RespErrorWithDate(ctx, "注册失败")
+	tool.RespSuccessfulWithDate(ctx, "注册成功")
 }
 func changePassword(ctx *gin.Context) {
 	oldPassword := ctx.PostForm("oldPassword")
