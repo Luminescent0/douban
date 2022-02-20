@@ -40,6 +40,14 @@ func login(ctx *gin.Context) {
 }
 func register(ctx *gin.Context) {
 	username, password := verify(ctx)
+	if username == "存在非法输入" {
+		tool.RespErrorWithDate(ctx, "用户名格式有误(min=4,max=10)")
+		return
+	}
+	if password == "" {
+		tool.RespErrorWithDate(ctx, "密码格式有误(min=6,max=16)")
+		return
+	}
 	user := model.User{
 		Username: username,
 		Password: password,
