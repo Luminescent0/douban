@@ -152,7 +152,7 @@ func uploadAvatar(c *gin.Context) {
 		return
 	}
 	//将保存后的文件本地路径保存到用户表中的头像字段
-	loadString := "http:121.4.229.95:8080/picture/" + fileName[13:]
+	loadString := "http:121.4.229.95:8080/pictures/" + fileName[13:]
 	err = service.UploadAvatar(username, loadString, fileAddress)
 	if err != nil {
 		tool.RespErrorWithDate(c, "上传失败")
