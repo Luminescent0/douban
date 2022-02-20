@@ -22,7 +22,7 @@ func CheckUserWant(username string) ([]model.UserWant, error) {
 	for rows.Next() {
 		var want model.UserWant
 		err = rows.Scan(&want.Label, &want.Comment, &want.MovieId, &want.MovieName)
-		want.Url = "http://121.4.229.95:8080/movieGet/" + strconv.Itoa(want.MovieId)
+		want.Url = "http://121.4.229.95:8090/movieGet/" + strconv.Itoa(want.MovieId)
 		if err != nil {
 			return nil, err
 
@@ -84,7 +84,7 @@ func Seen(username string) ([]model.UserWant, error) {
 		if err != nil {
 			return nil, err
 		}
-		seen.Url = "http://121.4.229.95/movieGet/" + strconv.Itoa(seen.MovieId)
+		seen.Url = "http://121.4.229.95:8090/movieGet/" + strconv.Itoa(seen.MovieId)
 		seens = append(seens, seen)
 	}
 	return seens, nil
