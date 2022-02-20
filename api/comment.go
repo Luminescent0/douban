@@ -5,6 +5,7 @@ import (
 	"douban/tool"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"strconv"
 )
 
 func getComment(ctx *gin.Context) {
@@ -36,8 +37,14 @@ func getLongComment(ctx *gin.Context) {
 func deleteComment(ctx *gin.Context) {
 	iUsername, _ := ctx.Get("username")
 	username := iUsername.(string)
-	movieName := ctx.PostForm("movieName")
-	err := service.DeleteComment(username, movieName)
+	movieID := ctx.Param("movieId")
+	movieId, _ := strconv.Atoi(movieID)
+	movie, err := service.GetMovieById(movieId)
+	if err != nil {
+		tool.RespErrorWithDate(ctx, "数据库中查询不到该电影")
+	}
+	movieName := movie.Name
+	err = service.DeleteComment(username, movieName)
 	if err != nil {
 		fmt.Println("delete comment failed err", err)
 		tool.RespSuccessfulWithDate(ctx, "删除失败")
@@ -50,8 +57,14 @@ func postLongComment(ctx *gin.Context) {
 	promulgator := iUsername.(string)
 	title := ctx.PostForm("title")
 	content := ctx.PostForm("content")
-	movieName := ctx.PostForm("movie_name")
-	err := service.PostLongComment(promulgator, title, content, movieName)
+	movieID := ctx.Param("movieId")
+	movieId, _ := strconv.Atoi(movieID)
+	movie, err := service.GetMovieById(movieId)
+	if err != nil {
+		tool.RespErrorWithDate(ctx, "数据库中查询不到该电影")
+	}
+	movieName := movie.Name
+	err = service.PostLongComment(promulgator, title, content, movieName)
 	if err != nil {
 		tool.RespSuccessfulWithDate(ctx, "上传失败")
 	}
@@ -62,8 +75,14 @@ func postComment(ctx *gin.Context) {
 	iUsername, _ := ctx.Get("username")
 	promulgator := iUsername.(string)
 	content := ctx.PostForm("content")
-	movieName := ctx.PostForm("movie_name")
-	err := service.PostComment(promulgator, content, movieName)
+	movieID := ctx.Param("movieId")
+	movieId, _ := strconv.Atoi(movieID)
+	movie, err := service.GetMovieById(movieId)
+	if err != nil {
+		tool.RespErrorWithDate(ctx, "数据库中查询不到该电影")
+	}
+	movieName := movie.Name
+	err = service.PostComment(promulgator, content, movieName)
 	if err != nil {
 		tool.RespSuccessfulWithDate(ctx, "上传失败")
 	}
@@ -73,8 +92,14 @@ func postComment(ctx *gin.Context) {
 func deleteLongComment(ctx *gin.Context) {
 	iUsername, _ := ctx.Get("username")
 	username := iUsername.(string)
-	movieName := ctx.PostForm("movieName")
-	err := service.DeleteComment(username, movieName)
+	movieID := ctx.Param("movieId")
+	movieId, _ := strconv.Atoi(movieID)
+	movie, err := service.GetMovieById(movieId)
+	if err != nil {
+		tool.RespErrorWithDate(ctx, "数据库中查询不到该电影")
+	}
+	movieName := movie.Name
+	err = service.DeleteComment(username, movieName)
 	if err != nil {
 		fmt.Println("delete comment failed err", err)
 		tool.RespSuccessfulWithDate(ctx, "删除失败")

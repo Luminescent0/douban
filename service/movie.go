@@ -40,10 +40,6 @@ func DeleteDiscussion(promulgator, title, movieName string) error {
 	return dao.DeleteDiscussion(promulgator, title, movieName)
 }
 
-func GetMovieByName(movieName string) (model.Movie, error) {
-	return dao.GetMovie(movieName)
-}
-
 func GetMovieById(movieId int) (model.Movie, error) {
-	return GetMovieById(movieId)
+	return dao.GetMovieById(movieId)
 }

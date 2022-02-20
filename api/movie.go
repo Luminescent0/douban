@@ -21,12 +21,16 @@ func wantSee(ctx *gin.Context) {
 func addWantSee(ctx *gin.Context) {
 	iUsername, _ := ctx.Get("username")
 	username := iUsername.(string)
-	movieName := ctx.PostForm("movieName")
 	label := ctx.PostForm("label")
 	comment := ctx.PostForm("comment")
-	movie, _ := service.GetMovieByName(movieName)
-	movieId := movie.Id
-	err := service.AddWantSee(username, movieName, comment, label, movieId)
+	movieID := ctx.Param("movieId")
+	movieId, _ := strconv.Atoi(movieID)
+	movie, err := service.GetMovieById(movieId)
+	if err != nil {
+		tool.RespErrorWithDate(ctx, "数据库中查询不到该电影")
+	}
+	movieName := movie.Name
+	err = service.AddWantSee(username, movieName, comment, label, movieId)
 	if err != nil {
 		fmt.Println("add wantSee failed err", err)
 		tool.RespInternalError(ctx)
@@ -37,8 +41,14 @@ func addWantSee(ctx *gin.Context) {
 func deleteWantSee(ctx *gin.Context) {
 	iUsername, _ := ctx.Get("username")
 	username := iUsername.(string)
-	movieName := ctx.PostForm("movieName")
-	err := service.DeleteWantSee(username, movieName)
+	movieID := ctx.Param("movieId")
+	movieId, _ := strconv.Atoi(movieID)
+	movie, err := service.GetMovieById(movieId)
+	if err != nil {
+		tool.RespErrorWithDate(ctx, "数据库中查询不到该电影")
+	}
+	movieName := movie.Name
+	err = service.DeleteWantSee(username, movieName)
 	if err != nil {
 		fmt.Println("delete Wantsee failed err", err)
 		tool.RespInternalError(ctx)
@@ -59,12 +69,16 @@ func seen(ctx *gin.Context) {
 func addSeen(ctx *gin.Context) {
 	iUsername, _ := ctx.Get("username")
 	username := iUsername.(string)
-	movieName := ctx.PostForm("movieName")
 	label := ctx.PostForm("label")
 	comment := ctx.PostForm("comment")
-	movie, _ := service.GetMovieByName(movieName)
-	movieId := movie.Id
-	err := service.AddSeen(username, movieName, comment, label, movieId)
+	movieID := ctx.Param("movieId")
+	movieId, _ := strconv.Atoi(movieID)
+	movie, err := service.GetMovieById(movieId)
+	if err != nil {
+		tool.RespErrorWithDate(ctx, "数据库中查询不到该电影")
+	}
+	movieName := movie.Name
+	err = service.AddSeen(username, movieName, comment, label, movieId)
 	if err != nil {
 		fmt.Println("add seen failed err", err)
 		tool.RespInternalError(ctx)
@@ -75,8 +89,14 @@ func addSeen(ctx *gin.Context) {
 func deleteSeen(ctx *gin.Context) {
 	iUsername, _ := ctx.Get("username")
 	username := iUsername.(string)
-	movieName := ctx.PostForm("movieName")
-	err := service.DeleteSeen(username, movieName)
+	movieID := ctx.Param("movieId")
+	movieId, _ := strconv.Atoi(movieID)
+	movie, err := service.GetMovieById(movieId)
+	if err != nil {
+		tool.RespErrorWithDate(ctx, "数据库中查询不到该电影")
+	}
+	movieName := movie.Name
+	err = service.DeleteSeen(username, movieName)
 	if err != nil {
 		fmt.Println("delete seen failed err", err)
 		tool.RespInternalError(ctx)

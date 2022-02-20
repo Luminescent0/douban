@@ -19,36 +19,37 @@ func InitEngine() {
 		userGroup.POST("/:username/introduction", changeIntroduction) //自我介绍
 
 	}
-	userInfo := engine.Group("/user")
+	userInfo := engine.Group("/user/:username")
 	{
-		userInfo.GET("/:username/introduction", introduction)
-		userInfo.GET("/:username/wantSee", wantSee)            //用户想看
-		userInfo.GET("/:username/seen", seen)                  //用户看过
-		userInfo.GET("/:username/comment", getComment)         //用户短评
-		userInfo.GET("/:username/longComment", getLongComment) //用户影评
+		userInfo.GET("/introduction", introduction)
+		userInfo.GET("/wantSee", wantSee)            //用户想看
+		userInfo.GET("/seen", seen)                  //用户看过
+		userInfo.GET("/comment", getComment)         //用户短评
+		userInfo.GET("/longComment", getLongComment) //用户影评
 
 	}
-	movie := engine.Group("/movie")
+	movie := engine.Group("/movie/:movieId")
 	{
 		movie.Use(JwtAuthMiddleware)
-		movie.POST("/:username/:movieId/wantSee", addWantSee) //想看
-		movie.DELETE("/:username/:movieId/wantSee", deleteWantSee)
+		movie.POST("/wantSee", addWantSee) //想看
+		movie.DELETE("/wantSee", deleteWantSee)
 
-		movie.POST("/:username/:movieId/seen", addSeen) //看过
-		movie.DELETE("/:username/:movieId/seen", deleteSeen)
+		movie.POST("/seen", addSeen) //看过
+		movie.DELETE("/seen", deleteSeen)
 
-		movie.DELETE("/:username/:movieId/comment", deleteComment) //短评
-		movie.POST("/:username/:movieId/comment", postComment)
+		movie.DELETE("/comment", deleteComment) //短评
+		movie.POST("/comment", postComment)
 
-		movie.POST("/:username/:movieId/longComment", postLongComment) //影评
-		movie.DELETE("/:username/:movieId/longComment", deleteLongComment)
+		movie.POST("/longComment", postLongComment) //影评
+		movie.DELETE("/longComment", deleteLongComment)
 
 		movieDis := movie.Group("/discussion")
 		{
-			movieDis.POST("/:username/discussion", postDiscussion) //讨论区
-			movieDis.DELETE("/:username/discussion", deleteDiscussion)
-			movieDis.POST("/:username/dis_comment", postDisComment) //讨论区评论
-			movieDis.DELETE("/:username/dis_comment", deleteDisComment)
+			movieDis.Use(JwtAuthMiddleware)
+			movieDis.POST("/", postDiscussion) //讨论区
+			movieDis.DELETE("/", deleteDiscussion)
+			movieDis.POST("/dis_comment", postDisComment) //讨论区评论
+			movieDis.DELETE("/dis_comment", deleteDisComment)
 		}
 
 	}

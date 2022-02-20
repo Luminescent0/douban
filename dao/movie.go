@@ -174,9 +174,9 @@ func DeleteDiscussion(promulgator, title, movieName string) error {
 	return nil
 }
 
-func GetMovie(movieName string) (model.Movie, error) {
+func GetMovieById(movieId int) (model.Movie, error) {
 	var movie = model.Movie{}
-	err := dB.QueryRow("select * from movies where name = ?", movieName).Scan(&movie.Id, &movie.Score, &movie.Rank, &movie.Genre, &movie.Introduction,
+	err := dB.QueryRow("select * from movies where id = ?", movieId).Scan(&movie.Name, &movie.Score, &movie.Rank, &movie.Genre, &movie.Introduction,
 		&movie.ReleaseArea, &movie.ReleaseDate, &movie.EvaOfNum, &movie.DirectorAndLeadActor)
 	if err != nil {
 		return movie, err
