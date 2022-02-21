@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"douban/model"
 	"douban/service"
 	"douban/tool"
@@ -169,4 +170,21 @@ func uploadAvatar(c *gin.Context) {
 		return
 	}
 	tool.RespSuccessfulWithDate(c, "上传成功")
+}
+
+func Avatar(c *gin.Context) {
+	username := c.Param("username")
+	user, err := service.GetUserInfo(username)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			tool.RespErrorWithDate(c, "没有找到相关信息")
+			return
+		}
+		tool.RespInternalError(c)
+		return
+	}
+	tool.RespSuccessfulWithDate(c,
+		gin.H{"loadString": user.Url,
+			"Address": user.Address,
+		})
 }

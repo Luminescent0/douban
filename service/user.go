@@ -111,3 +111,7 @@ func UsernameIsExist(username string) error {
 	}
 	return nil
 }
+
+func GetUserInfo(username string) (model.User, error) {
+	return dao.SelectUserByUsername(username)
+}

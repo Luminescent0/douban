@@ -21,7 +21,8 @@ func InitEngine() {
 	}
 	userInfo := engine.Group("/user/:username")
 	{
-		userInfo.GET("/introduction", introduction)
+		userInfo.GET("/avatar", Avatar)              //头像
+		userInfo.GET("/introduction", introduction)  //自我介绍
 		userInfo.GET("/wantSee", wantSee)            //用户想看
 		userInfo.GET("/seen", seen)                  //用户看过
 		userInfo.GET("/comment", getComment)         //用户短评
