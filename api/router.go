@@ -1,11 +1,14 @@
 package api
 
 import (
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 )
 
 func InitEngine() {
 	engine := gin.Default()
+
+	engine.Use(static.Serve("/", static.LocalFile("/usr/share/nginx/html", false)))
 
 	engine.Use(Cors())
 	engine.POST("/login", login)       //登录
