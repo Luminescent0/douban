@@ -7,7 +7,8 @@ import (
 
 func SelectUserByUsername(username string) (model.User, error) {
 	user := model.User{}
-	err := dB.QueryRow("select id, password,avatar,address from user where username = ?", username).Scan(&user.Id, &user.Password, &user.Url, &user.Address)
+	err := dB.QueryRow("select id, password from user where username = ?", username).Scan(&user.Id, &user.Password)
+	fmt.Println(err)
 	if err != nil {
 		return user, err
 	}
