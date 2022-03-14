@@ -12,7 +12,7 @@ import (
 
 var (
 	githubOauthConfig = &oauth2.Config{
-		RedirectURL:  "http://localhost:8090/callback",
+		RedirectURL:  "http://121.4.229.95:8090/callback",
 		ClientID:     "1a1ef437a61310f98d9e",
 		ClientSecret: "152a00800c632b4d6a50dbfe4fe142bfe87e2708",
 		Endpoint:     github.Endpoint,
