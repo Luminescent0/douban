@@ -90,8 +90,18 @@ func callback(c *gin.Context) {
 	if err = json.NewDecoder(res.Body).Decode(&userInfo); err != nil {
 		return
 	}
-	tool.RespSuccessfulWithDate(c, userInfo)
+	//tool.RespSuccessfulWithDate(c, userInfo)
 
 	//用户信息获取部分的参考博客
 	//https://blog.csdn.net/qq_19018277/article/details/104935403?utm_source=app&app_version=5.0.1&code=app_1562916241&uLinkId=usr1mkqgl919blen
+
+	iUsername := userInfo["login"]
+	username := iUsername.(string)
+	token1, err1 := CreateToken(username)
+	if err1 != nil {
+		tool.RespInternalError(c)
+		return
+	}
+	tool.RespSuccessfulWithDate(c, token1)
+	return
 }
