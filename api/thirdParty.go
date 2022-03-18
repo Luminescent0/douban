@@ -9,7 +9,6 @@ import (
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/github"
-	"log"
 	"net/http"
 	"time"
 )
@@ -77,10 +76,10 @@ func callback(c *gin.Context) {
 	}
 	fmt.Println(oauth2Token)
 	ctx := context.Background()
+	fmt.Println(ctx)
 	provider, err := oidc.NewProvider(ctx, "https://token.actions.githubusercontent.com")
 	if err != nil {
 		fmt.Println(err)
-		log.Fatal(err)
 	}
 	oidcConfig := &oidc.Config{ClientID: "1a1ef437a61310f98d9e"}
 	verifier := provider.Verifier(oidcConfig)
