@@ -79,6 +79,8 @@ func callback(c *gin.Context) {
 	provider, err := oidc.NewProvider(ctx, "https://token.actions.githubusercontent.com")
 	if err != nil {
 		fmt.Println(err)
+		c.Redirect(http.StatusInternalServerError, "/")
+		return
 	}
 	oidcConfig := &oidc.Config{ClientID: "1a1ef437a61310f98d9e"}
 	verifier := provider.Verifier(oidcConfig)
