@@ -76,7 +76,6 @@ func callback(c *gin.Context) {
 	}
 	fmt.Println(oauth2Token)
 	ctx := context.Background()
-	fmt.Println(ctx)
 	provider, err := oidc.NewProvider(ctx, "https://token.actions.githubusercontent.com")
 	if err != nil {
 		fmt.Println(err)
