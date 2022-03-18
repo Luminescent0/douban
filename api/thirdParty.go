@@ -1,8 +1,7 @@
 package api
 
 import (
-	"crypto/rand"
-	"encoding/base64"
+	"douban/tool"
 	"encoding/json"
 	"fmt"
 	"github.com/coreos/go-oidc/v3/oidc"
@@ -10,7 +9,6 @@ import (
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/github"
-	"io"
 	"log"
 	"net/http"
 	"time"
@@ -25,15 +23,16 @@ var (
 		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 	}
 	randomState = "xianye"
+	randomNonce = "xian"
 )
 
-func randString(nByte int) (string, error) {
-	b := make([]byte, nByte)
-	if _, err := io.ReadFull(rand.Reader, b); err != nil {
-		return "", err
-	}
-	return base64.RawURLEncoding.EncodeToString(b), nil
-}
+//func randString(nByte int) (string, error) {
+//	b := make([]byte, nByte)
+//	if _, err := io.ReadFull(rand.Reader, b); err != nil {
+//		return "", err
+//	}
+//	return base64.RawURLEncoding.EncodeToString(b), nil
+//}
 func setCallbackCookie(w http.ResponseWriter, r *http.Request, name, value string) {
 	c := &http.Cookie{
 		Name:     name,
@@ -58,19 +57,10 @@ func loginByGit(c *gin.Context) {
 	//url := "https://github.com/login/oauth/authorize?client_id=" + githubOauthConfig.ClientID +
 	//	"&redirect_uri=" + githubOauthConfig.RedirectURL +
 	//	"&state=" + randomState
-	state, err := randString(16)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	nonce, err := randString(16)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	setCallbackCookie(c.Writer, c.Request, "state", state)
-	setCallbackCookie(c.Writer, c.Request, "nonce", nonce)
-	c.Redirect(http.StatusFound, githubOauthConfig.AuthCodeURL(state, oidc.Nonce(nonce)))
+
+	setCallbackCookie(c.Writer, c.Request, "state", randomState)
+	setCallbackCookie(c.Writer, c.Request, "nonce", randomNonce)
+	c.Redirect(http.StatusFound, githubOauthConfig.AuthCodeURL(randomState, oidc.Nonce(randomNonce)))
 }
 
 func callback(c *gin.Context) {
@@ -134,7 +124,8 @@ func callback(c *gin.Context) {
 		c.Redirect(http.StatusInternalServerError, "/")
 		return
 	}
-	c.Writer.Write(data)
+	//c.Writer.Write(data)
+	tool.RespSuccessfulWithDate(c, data)
 	//resp,err := http.Post("https://api.github.com/user?access_token="+token.AccessToken,"application/x-www-form-urlencoded",nil)
 	//fmt.Println(token.AccessToken)
 	//if err != nil {
