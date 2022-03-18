@@ -75,7 +75,7 @@ func callback(c *gin.Context) {
 		c.Redirect(http.StatusTemporaryRedirect, "/")
 		return
 	}
-
+	fmt.Println(oauth2Token)
 	ctx := context.Background()
 	provider, err := oidc.NewProvider(ctx, "https://token.actions.githubusercontent.com")
 	if err != nil {
