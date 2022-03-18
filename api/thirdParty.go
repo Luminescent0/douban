@@ -65,13 +65,13 @@ func loginByGit(c *gin.Context) {
 func callback(c *gin.Context) {
 	if c.Query("state") != randomState {
 		fmt.Println("state is not valid")
-		c.Redirect(http.StatusTemporaryRedirect, "/")
+		tool.RespInternalError(c)
 		return
 	}
 	oauth2Token, err := githubOauthConfig.Exchange(oauth2.NoContext, c.Query("code"))
 	if err != nil {
 		fmt.Println("could not get token:", err)
-		c.Redirect(http.StatusTemporaryRedirect, "/")
+		tool.RespInternalError(c)
 		return
 	}
 	fmt.Println(oauth2Token)
@@ -79,7 +79,7 @@ func callback(c *gin.Context) {
 	provider, err := oidc.NewProvider(ctx, "https://token.actions.githubusercontent.com")
 	if err != nil {
 		fmt.Println(err)
-		c.Redirect(http.StatusInternalServerError, "/")
+		tool.RespInternalError(c)
 		return
 	}
 	oidcConfig := &oidc.Config{ClientID: "1a1ef437a61310f98d9e"}
@@ -88,25 +88,25 @@ func callback(c *gin.Context) {
 	rawIDToken, ok := oauth2Token.Extra("id_token").(string)
 	if !ok {
 		fmt.Println("No id_token field in oauth2 token.")
-		c.Redirect(http.StatusInternalServerError, "/")
+		tool.RespInternalError(c)
 		return
 	}
 	fmt.Println(rawIDToken)
 	idToken, err := verifier.Verify(ctx, rawIDToken)
 	if err != nil {
 		fmt.Println("failed to verify ID Token:", err)
-		c.Redirect(http.StatusInternalServerError, "/")
+		tool.RespInternalError(c)
 		return
 	}
 	nonce, err := c.Request.Cookie("nonce")
 	if err != nil {
 		fmt.Println("nonce not found:", err)
-		c.Redirect(http.StatusBadRequest, "/")
+		tool.RespInternalError(c)
 		return
 	}
 	if idToken.Nonce != nonce.Value {
 		fmt.Println("nonce did not match", err)
-		c.Redirect(http.StatusBadRequest, "/")
+		tool.RespInternalError(c)
 		return
 	}
 	resp := struct {
@@ -115,13 +115,13 @@ func callback(c *gin.Context) {
 	}{oauth2Token, new(json.RawMessage)}
 	if err := idToken.Claims(&resp.IDTokenClaims); err != nil {
 		fmt.Println(err)
-		c.Redirect(http.StatusInternalServerError, "/")
+		tool.RespInternalError(c)
 		return
 	}
 	data, err := json.MarshalIndent(resp, "", " ")
 	if err != nil {
 		fmt.Println(err)
-		c.Redirect(http.StatusInternalServerError, "/")
+		tool.RespInternalError(c)
 		return
 	}
 	//c.Writer.Write(data)
