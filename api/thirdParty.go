@@ -116,15 +116,15 @@ func callback(c *gin.Context) {
 		tool.RespInternalError(c)
 		return
 	}
-	iaccessToken := token["access_token"]
-	accessToken := iaccessToken.(string)
+	iAccessToken := token["access_token"]
+	accessToken := iAccessToken.(string)
 	req2.Header.Set("accept", "application/json")
 	req2.Header.Set("Authorization", fmt.Sprintf("token %s", accessToken))
 
 	//发送请求并获取响应
 	var client2 = http.Client{}
 	var res *http.Response
-	if res, err = client2.Do(req); err != nil {
+	if res, err = client2.Do(req2); err != nil {
 		fmt.Println("could not get response:", err)
 		tool.RespInternalError(c)
 		return
