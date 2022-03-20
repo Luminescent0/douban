@@ -116,7 +116,8 @@ func callback(c *gin.Context) {
 		tool.RespInternalError(c)
 		return
 	}
-	accessToken := token["access_token"]
+	iaccessToken := token["access_token"]
+	accessToken := iaccessToken.(string)
 	req2.Header.Set("accept", "application/json")
 	req2.Header.Set("Authorization", fmt.Sprintf("token %s", accessToken))
 
