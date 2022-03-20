@@ -1,21 +1,26 @@
 package api
 
 import (
+	"douban/model"
 	"douban/tool"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/github"
+	"io/ioutil"
 	"net/http"
+	"net/url"
+	"strings"
 )
 
 var (
-	githubOauthConfig = &oauth2.Config{
+	githubOauthConfig = &model.Config{
 		RedirectURL:  "http://121.4.229.95:8090/callback",
 		ClientID:     "1a1ef437a61310f98d9e",
 		ClientSecret: "152a00800c632b4d6a50dbfe4fe142bfe87e2708",
-		Endpoint:     github.Endpoint,
+		Endpoint: model.URL{
+			AuthURL:  "https://github.com/login/oauth/authorize",
+			TokenURL: "https://github.com/login/oauth/access_token",
+		},
 	}
 	randomState = "xianye"
 )
@@ -43,14 +48,34 @@ func callback(c *gin.Context) {
 		tool.RespInternalError(c)
 		return
 	}
-	oauth2Token, err := githubOauthConfig.Exchange(oauth2.NoContext, c.Query("code"))
+	//oauth2Token, err := githubOauthConfig.Exchange(oauth2.NoContext, c.Query("code"))
+	//if err != nil {
+	//	fmt.Println("could not get token:", err)
+	//	tool.RespInternalError(c)
+	//	return
+	//}
+	//fmt.Println(oauth2Token)
+
+	code := c.Query("code")
+	postData := url.Values{}
+	postData.Add("code", code)
+	postData.Add("client_id", githubOauthConfig.ClientID)
+	postData.Add("client_secret", githubOauthConfig.ClientSecret)
+	body := strings.NewReader(postData.Encode())
+	resp, err := http.Post(" https://github.com/login/oauth/access_token", "application/x-www-form-urlencoded", body)
 	if err != nil {
 		fmt.Println("could not get token:", err)
-		tool.RespInternalError(c)
+		c.Redirect(http.StatusTemporaryRedirect, "/")
 		return
 	}
-	fmt.Println(oauth2Token)
-
+	fmt.Println(resp)
+	defer resp.Body.Close()
+	content, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("could not parse response:", err)
+		c.Redirect(http.StatusTemporaryRedirect, "/")
+		return
+	}
 	//resp,err := http.Post("https://api.github.com/user?access_token="+token.AccessToken,"application/x-www-form-urlencoded",nil)
 	//fmt.Println(token.AccessToken)
 	//if err != nil {
@@ -80,7 +105,7 @@ func callback(c *gin.Context) {
 		return
 	}
 	req.Header.Set("accept", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("token %s", oauth2Token.AccessToken))
+	req.Header.Set("Authorization", fmt.Sprintf("token %s", content))
 
 	//发送请求并获取响应
 	var client = http.Client{}
@@ -93,7 +118,7 @@ func callback(c *gin.Context) {
 	if err = json.NewDecoder(res.Body).Decode(&userInfo); err != nil {
 		return
 	}
-	tool.RespSuccessfulWithDate(c, userInfo)
+	//tool.RespSuccessfulWithDate(c, userInfo)
 
 	//用户信息获取部分的参考博客
 	//https://blog.csdn.net/qq_19018277/article/details/104935403?utm_source=app&app_version=5.0.1&code=app_1562916241&uLinkId=usr1mkqgl919blen
