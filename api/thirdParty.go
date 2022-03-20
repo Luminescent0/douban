@@ -65,7 +65,7 @@ func callback(c *gin.Context) {
 	resp, err := http.Post("https://github.com/login/oauth/access_token", "application/x-www-form-urlencoded", body)
 	if err != nil {
 		fmt.Println("could not get token:", err)
-		c.Redirect(http.StatusTemporaryRedirect, "/")
+		tool.RespInternalError(c)
 		return
 	}
 	fmt.Println(resp)
@@ -73,7 +73,7 @@ func callback(c *gin.Context) {
 	content, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println("could not parse response:", err)
-		c.Redirect(http.StatusTemporaryRedirect, "/")
+		tool.RespInternalError(c)
 		return
 	}
 	//resp,err := http.Post("https://api.github.com/user?access_token="+token.AccessToken,"application/x-www-form-urlencoded",nil)
