@@ -124,14 +124,14 @@ func callback(c *gin.Context) {
 	var client2 = http.Client{}
 	var res *http.Response
 	if res, err = client2.Do(req); err != nil {
-		fmt.Println(err)
+		fmt.Println("could not get response:", err)
 		tool.RespInternalError(c)
 		return
 	}
 	//将响应的数据写入 userInfo中并返回
 	var userInfo = make(map[string]interface{})
 	if err = json.NewDecoder(res.Body).Decode(&userInfo); err != nil {
-		fmt.Println(err)
+		fmt.Println("could not write in userinfo", err)
 		tool.RespInternalError(c)
 		return
 	}
