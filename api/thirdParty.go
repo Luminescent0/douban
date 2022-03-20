@@ -72,8 +72,8 @@ func callback(c *gin.Context) {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("accept", "application/json")
 	var resp *http.Response
-	var client1 = http.Client{}
-	if resp, err = client1.Do(req); err != nil {
+	var client = http.Client{}
+	if resp, err = client.Do(req); err != nil {
 		return
 	}
 	defer resp.Body.Close()
@@ -114,9 +114,9 @@ func callback(c *gin.Context) {
 	req2.Header.Set("Authorization", fmt.Sprintf("token %s"))
 
 	//发送请求并获取响应
-	var client = http.Client{}
+	var client2 = http.Client{}
 	var res *http.Response
-	if res, err = client.Do(req); err != nil {
+	if res, err = client2.Do(req); err != nil {
 		return
 	}
 	//将响应的数据写入 userInfo中并返回
