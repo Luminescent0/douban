@@ -54,7 +54,6 @@ func callback(c *gin.Context) {
 	//	return
 	//}
 	//fmt.Println(oauth2Token)
-
 	code := c.Query("code")
 	postData := url.Values{}
 	postData.Add("code", code)
@@ -82,6 +81,7 @@ func callback(c *gin.Context) {
 	if err = json.NewDecoder(resp.Body).Decode(&token); err != nil {
 		return
 	}
+	fmt.Println(token)
 	//resp,err := http.Post("https://api.github.com/user?access_token="+token.AccessToken,"application/x-www-form-urlencoded",nil)
 	//fmt.Println(token.AccessToken)
 	//if err != nil {
