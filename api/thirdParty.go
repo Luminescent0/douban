@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -62,18 +61,25 @@ func callback(c *gin.Context) {
 	postData.Add("client_id", githubOauthConfig.ClientID)
 	postData.Add("client_secret", githubOauthConfig.ClientSecret)
 	body := strings.NewReader(postData.Encode())
-	resp, err := http.Post("https://github.com/login/oauth/access_token", "application/x-www-form-urlencoded", body)
+
+	//发送请求
+	var req *http.Request
+	req, err := http.NewRequest(http.MethodPost, "https://github.com/login/oauth/access_token", body)
 	if err != nil {
 		fmt.Println("could not get token:", err)
 		tool.RespInternalError(c)
 		return
 	}
-	fmt.Println(resp)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("accept", "application/json")
+	var resp *http.Response
+	var client1 = http.Client{}
+	if resp, err = client1.Do(req); err != nil {
+		return
+	}
 	defer resp.Body.Close()
-	content, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println("could not parse response:", err)
-		tool.RespInternalError(c)
+	var token = make(map[string]interface{})
+	if err = json.NewDecoder(resp.Body).Decode(&token); err != nil {
 		return
 	}
 	//resp,err := http.Post("https://api.github.com/user?access_token="+token.AccessToken,"application/x-www-form-urlencoded",nil)
@@ -100,12 +106,12 @@ func callback(c *gin.Context) {
 	//GitHub在2020.3起不允许将access_token作为url中的参数明文传输，要将其作为Authorization HTTP header中的参数传输
 
 	var userInfoUrl = "https://api.github.com/user" //github用户信息获取接口
-	var req *http.Request
-	if req, err = http.NewRequest(http.MethodGet, userInfoUrl, nil); err != nil {
+	var req2 *http.Request
+	if req2, err = http.NewRequest(http.MethodGet, userInfoUrl, nil); err != nil {
 		return
 	}
-	req.Header.Set("accept", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("token %s", content))
+	req2.Header.Set("accept", "application/json")
+	req2.Header.Set("Authorization", fmt.Sprintf("token %s"))
 
 	//发送请求并获取响应
 	var client = http.Client{}
@@ -119,7 +125,7 @@ func callback(c *gin.Context) {
 		return
 	}
 	//tool.RespSuccessfulWithDate(c, userInfo)
-
+	defer res.Body.Close()
 	//用户信息获取部分的参考博客
 	//https://blog.csdn.net/qq_19018277/article/details/104935403?utm_source=app&app_version=5.0.1&code=app_1562916241&uLinkId=usr1mkqgl919blen
 
