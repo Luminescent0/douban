@@ -74,11 +74,15 @@ func callback(c *gin.Context) {
 	var resp *http.Response
 	var client = http.Client{}
 	if resp, err = client.Do(req); err != nil {
+		fmt.Println(err)
+		tool.RespInternalError(c)
 		return
 	}
 	defer resp.Body.Close()
 	var token = make(map[string]interface{})
 	if err = json.NewDecoder(resp.Body).Decode(&token); err != nil {
+		fmt.Println(err)
+		tool.RespInternalError(c)
 		return
 	}
 	fmt.Println(token)
