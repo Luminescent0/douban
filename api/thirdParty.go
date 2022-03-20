@@ -114,8 +114,9 @@ func callback(c *gin.Context) {
 	if req2, err = http.NewRequest(http.MethodGet, userInfoUrl, nil); err != nil {
 		return
 	}
+	accessToken := token["access_token"]
 	req2.Header.Set("accept", "application/json")
-	req2.Header.Set("Authorization", fmt.Sprintf("token %s"))
+	req2.Header.Set("Authorization", fmt.Sprintf("token %s", accessToken))
 
 	//发送请求并获取响应
 	var client2 = http.Client{}
