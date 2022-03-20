@@ -62,7 +62,7 @@ func callback(c *gin.Context) {
 	postData.Add("client_id", githubOauthConfig.ClientID)
 	postData.Add("client_secret", githubOauthConfig.ClientSecret)
 	body := strings.NewReader(postData.Encode())
-	resp, err := http.Post(" https://github.com/login/oauth/access_token", "application/x-www-form-urlencoded", body)
+	resp, err := http.Post("https://github.com/login/oauth/access_token", "application/x-www-form-urlencoded", body)
 	if err != nil {
 		fmt.Println("could not get token:", err)
 		c.Redirect(http.StatusTemporaryRedirect, "/")
