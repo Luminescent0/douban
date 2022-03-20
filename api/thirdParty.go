@@ -112,6 +112,8 @@ func callback(c *gin.Context) {
 	var userInfoUrl = "https://api.github.com/user" //github用户信息获取接口
 	var req2 *http.Request
 	if req2, err = http.NewRequest(http.MethodGet, userInfoUrl, nil); err != nil {
+		fmt.Println("could not create request:", err)
+		tool.RespInternalError(c)
 		return
 	}
 	accessToken := token["access_token"]
@@ -122,11 +124,15 @@ func callback(c *gin.Context) {
 	var client2 = http.Client{}
 	var res *http.Response
 	if res, err = client2.Do(req); err != nil {
+		fmt.Println(err)
+		tool.RespInternalError(c)
 		return
 	}
 	//将响应的数据写入 userInfo中并返回
 	var userInfo = make(map[string]interface{})
 	if err = json.NewDecoder(res.Body).Decode(&userInfo); err != nil {
+		fmt.Println(err)
+		tool.RespInternalError(c)
 		return
 	}
 	//tool.RespSuccessfulWithDate(c, userInfo)
