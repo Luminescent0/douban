@@ -1,16 +1,13 @@
 package api
 
 import (
-	"database/sql"
 	"douban/model"
 	"douban/service"
 	"douban/tool"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"path"
-	"strconv"
-	"time"
+	"gorm.io/gorm"
 )
 
 func login(ctx *gin.Context) {
@@ -18,7 +15,11 @@ func login(ctx *gin.Context) {
 	password := ctx.PostForm("password")
 	err := service.UsernameIsExist(username)
 	if err != nil {
-		tool.RespErrorWithDate(ctx, "用户不存在")
+		if err == gorm.ErrRecordNotFound {
+			tool.RespErrorWithDate(ctx, "用户不存在")
+			return
+		}
+		tool.RespInternalError(ctx)
 		return
 	}
 	flag, err := service.IsPasswordCorrect(username, password)
@@ -136,55 +137,55 @@ func changeIntroduction(ctx *gin.Context) {
 	tool.RespSuccessful(ctx)
 }
 
-func uploadAvatar(c *gin.Context) {
-	iUsername, _ := c.Get("username")
-	username := iUsername.(string)
-	//解析上传的参数,file username
-	file, err := c.FormFile("avatar")
-	if err != nil {
-		tool.RespErrorWithDate(c, "参数解析失败")
-		return
-	}
-	if file.Size > 1024*1024*5 {
-		tool.RespErrorWithDate(c, "文件过大")
-		return
-	}
-	fileSuffix := path.Ext(file.Filename)
-	if !(fileSuffix == ".jpg" || fileSuffix == ".png") {
-		tool.RespErrorWithDate(c, "文件格式错误")
-		return
-	}
-	//file保存到本地
-	fileName := "./uploadfile" + strconv.FormatInt(time.Now().Unix(), 10) + username + fileSuffix
-	fileAddress := "/opt/gocode/src/douban" + fileName[1:]
-	err = c.SaveUploadedFile(file, fileName)
-	if err != nil {
-		tool.RespErrorWithDate(c, "保存头像失败")
-		return
-	}
-	//将保存后的文件本地路径保存到用户表中的头像字段
-	loadString := "http:121.4.229.95:8080/pictures/" + fileName[13:]
-	err = service.UploadAvatar(username, loadString, fileAddress)
-	if err != nil {
-		tool.RespErrorWithDate(c, "上传失败")
-		return
-	}
-	tool.RespSuccessfulWithDate(c, "上传成功")
-}
-
-func Avatar(c *gin.Context) {
-	username := c.Param("username")
-	user, err := service.GetUserInfo(username)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			tool.RespErrorWithDate(c, "没有找到相关信息")
-			return
-		}
-		tool.RespInternalError(c)
-		return
-	}
-	tool.RespSuccessfulWithDate(c,
-		gin.H{"loadString": user.Url,
-			"Address": user.Address,
-		})
-}
+//func uploadAvatar(c *gin.Context) {
+//	iUsername, _ := c.Get("username")
+//	username := iUsername.(string)
+//	//解析上传的参数,file username
+//	file, err := c.FormFile("avatar")
+//	if err != nil {
+//		tool.RespErrorWithDate(c, "参数解析失败")
+//		return
+//	}
+//	if file.Size > 1024*1024*5 {
+//		tool.RespErrorWithDate(c, "文件过大")
+//		return
+//	}
+//	fileSuffix := path.Ext(file.Filename)
+//	if !(fileSuffix == ".jpg" || fileSuffix == ".png") {
+//		tool.RespErrorWithDate(c, "文件格式错误")
+//		return
+//	}
+//	//file保存到本地
+//	fileName := "./uploadfile" + strconv.FormatInt(time.Now().Unix(), 10) + username + fileSuffix
+//	fileAddress := "/opt/gocode/src/douban" + fileName[1:]
+//	err = c.SaveUploadedFile(file, fileName)
+//	if err != nil {
+//		tool.RespErrorWithDate(c, "保存头像失败")
+//		return
+//	}
+//	//将保存后的文件本地路径保存到用户表中的头像字段
+//	loadString := "http:121.4.229.95:8080/pictures/" + fileName[13:]
+//	err = service.UploadAvatar(username, loadString, fileAddress)
+//	if err != nil {
+//		tool.RespErrorWithDate(c, "上传失败")
+//		return
+//	}
+//	tool.RespSuccessfulWithDate(c, "上传成功")
+//}
+//
+//func Avatar(c *gin.Context) {
+//	username := c.Param("username")
+//	user, err := service.GetUserInfo(username)
+//	if err != nil {
+//		if err == sql.ErrNoRows {
+//			tool.RespErrorWithDate(c, "没有找到相关信息")
+//			return
+//		}
+//		tool.RespInternalError(c)
+//		return
+//	}
+//	tool.RespSuccessfulWithDate(c,
+//		gin.H{"loadString": user.Url,
+//			"Address": user.Address,
+//		})
+//}

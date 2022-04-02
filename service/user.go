@@ -4,17 +4,28 @@ import (
 	"database/sql"
 	"douban/dao"
 	"douban/model"
+	"errors"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 	"time"
 )
 
 func IsPasswordCorrect(username, password string) (bool, error) {
 	user, err := dao.SelectUserByUsername(username)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return false, nil
+		fmt.Println(err)
+		flag := errors.Is(err, gorm.ErrRecordNotFound)
+		if !flag {
+			return false, err
 		}
+		//flag = errors.Is(err,gorm.ErrEmptySlice)
+		//if !flag {
+		//	return false,err
+		//}
+		//if err == sql.ErrNoRows {
+		//	return false, nil
+		//}
 		fmt.Println(username) //验证是否ErrNoRows
 		return false, err
 	}
@@ -107,6 +118,11 @@ func ComparePassword(hashedPassword string, plainPassword []byte) bool {
 func UsernameIsExist(username string) error {
 	_, err := dao.SelectUserByUsername(username)
 	if err != nil {
+		fmt.Println(err)
+		if err == gorm.ErrRecordNotFound {
+			fmt.Println("不存在")
+			return err
+		}
 		return err
 	}
 	return nil
