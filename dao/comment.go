@@ -66,15 +66,27 @@ func DeleteComment(username, movieName string) error {
 }
 
 func PostLongComment(promulgator, title, content, movieName string) error {
+	tx := dB.Begin()
+	fmt.Println("begin")
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("回滚")
+			tx.Rollback()
+		}
+	}()
+	if tx.Error != nil {
+		fmt.Println("事务开启异常")
+	}
 	var comment = model.LongComment{
 		Promulgator: promulgator,
 		Title:       title,
 		Content:     content,
 		MovieName:   movieName,
 	}
-	err := dB.Table("long_comment").Create(&comment)
+	err := tx.Table("long_comment").Create(&comment)
 	if err.Error != nil {
 		fmt.Println(err.Error)
+		tx.Rollback()
 		return err.Error
 	}
 	//sqlStr := "insert into long_comment(promulgator, title, content, movie_name)value(?,?,?,?)"
@@ -89,6 +101,23 @@ func PostLongComment(promulgator, title, content, movieName string) error {
 	//	fmt.Println("post long comment failed,err:", err)
 	//	return err
 	//}
+	var commentNum int
+	var movie = model.Movie{Name: movieName, CommentNum: commentNum}
+	err = tx.Where("name=?", movieName).Find(&movie)
+	if err.Error != nil {
+		fmt.Println(err.Error)
+		tx.Rollback()
+		return err.Error
+	}
+	commentNum += 1
+	err = tx.Model(&model.Movie{}).Where("name=?", movieName).Update("comment_num", commentNum)
+	if err != nil {
+		fmt.Println(err.Error)
+		tx.Rollback()
+		return err.Error
+	}
+	tx.Commit()
+	fmt.Println("事务提交")
 	return nil
 }
 

@@ -13,4 +13,5 @@ type Movie struct {
 	DirectorAndLeadActor string
 	Rank                 int
 	Introduction         string
+	CommentNum           int `gorm:"column:comment_num"`
 }
